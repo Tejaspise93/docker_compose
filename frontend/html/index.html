@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Docker Compose Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Docker Compose Learning Project</h1>
+    <p>Static page served by nginx. Buttons below call the backend through nginx's reverse proxy.</p>
+
+    <button onclick="checkHealth()">Check Health</button>
+    <button onclick="getMessage()">Get Message</button>
+    <button onclick="getSecret()">Get Secret</button>
+
+    <pre id="output">Response will appear here...</pre>
+  </div>
+
+  <script>
+    async function checkHealth() {
+      const res = await fetch('/api/health');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getMessage() {
+      const res = await fetch('/api/message');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getSecret() {
+      const res = await fetch('/api/secret');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+
+</html>
