@@ -1,67 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>Docker Compose Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Compose Learning Project</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <h1>Docker Compose Project</h1>
-      <label class="switch">
-        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-        <span class="slider">
-          <span class="knob">
+  <main class="app-shell">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🐳</div>
+        <div>
+          <div class="brand-name">Docker Compose</div>
+          <div class="brand-subtitle">Learn · Build · Deploy</div>
+        </div>
+      </div>
+
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+        <span class="toggle-track">
+          <span class="toggle-thumb">
             <span class="icon sun">🌞</span>
             <span class="icon moon">🌚</span>
           </span>
         </span>
-      </label>
-    </div>
-    <p>Static page served by nginx. Buttons below call the backend through nginx's reverse proxy.</p>
+      </button>
+    </header>
 
-    <button onclick="checkHealth()">Check Health</button>
-    <button onclick="getMessage()">Get Message</button>
-    <button onclick="getSecret()">Get Secret</button>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow">
+          <span class="status-dot"></span>
+          Docker Compose Demo
+        </div>
 
-    <pre id="output">Response will appear here...</pre>
-  </div>
+        <h1>Docker Compose<br><span>Learning Project</span></h1>
+
+        <p class="hero-description">
+          A simple full-stack application running with Docker Compose.
+          The frontend is served by Nginx and communicates with a backend API.
+        </p>
+
+        <div class="tech-pills">
+          <span>◈ Nginx Reverse Proxy</span>
+          <span>▣ Containerized Services</span>
+          <span>ϟ Simple &amp; Practical</span>
+        </div>
+      </div>
+
+      <div class="docker-art" aria-hidden="true">
+        <div class="container-stack">
+          <i></i><i></i><i></i>
+          <i></i><i></i>
+          <i></i>
+        </div>
+        <div class="whale">🐳</div>
+        <div class="water-line"></div>
+      </div>
+    </section>
+
+    <section class="api-grid">
+      <article class="api-card health">
+        <div class="api-icon">♥</div>
+        <h2>Check Health</h2>
+        <p>Check if the backend service is up and running.</p>
+        <button class="api-button" onclick="callApi('/api/health', 'Health Check')" type="button">
+          <span>▶</span>
+          Check Health
+          <strong>→</strong>
+        </button>
+      </article>
+
+      <article class="api-card message">
+        <div class="api-icon">☷</div>
+        <h2>Get Message</h2>
+        <p>Get a message returned from the backend service.</p>
+        <button class="api-button" onclick="callApi('/api/message', 'Message')" type="button">
+          <span>▶</span>
+          Get Message
+          <strong>→</strong>
+        </button>
+      </article>
+
+      <article class="api-card secret">
+        <div class="api-icon">♙</div>
+        <h2>Get Secret</h2>
+        <p>Retrieve a secret message from the protected endpoint.</p>
+        <button class="api-button" onclick="callApi('/api/secret', 'Secret')" type="button">
+          <span>▶</span>
+          Get Secret
+          <strong>→</strong>
+        </button>
+      </article>
+    </section>
+
+    <section class="response-card">
+      <div class="response-header">
+        <div class="response-title">
+          <div class="terminal-icon">&gt;_</div>
+          <div>
+            <h2>Response</h2>
+            <p id="responseHint">The API response will appear here.</p>
+          </div>
+        </div>
+
+        <button class="copy-button" id="copyButton" type="button" onclick="copyResponse()">
+          ⧉ Copy
+        </button>
+      </div>
+
+      <div class="code-window">
+        <div class="line-numbers" id="lineNumbers">1<br>2<br>3</div>
+        <pre id="output"><code>{
+  <span class="json-key">"status"</span>: <span class="json-string">"ok"</span>
+}</code></pre>
+      </div>
+    </section>
+
+    <footer>
+      <span>Made with 💙 using Docker Compose</span>
+      <span>Keep Learning. Keep Building.</span>
+    </footer>
+
+  </main>
 
   <script>
-    async function callApi(endpoint) {
-      const output = document.getElementById('output');
-      output.textContent = 'Loading...';
+    const output = document.getElementById('output');
+    const responseHint = document.getElementById('responseHint');
+    const copyButton = document.getElementById('copyButton');
+    const themeToggle = document.getElementById('themeToggle');
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function syntaxHighlight(json) {
+      const escaped = escapeHtml(json);
+      return escaped.replace(
+        /(&quot;.*?&quot;)(\s*:)?|(-?\d+(?:\.\d+)?)|\b(true|false|null)\b/g,
+        (match, string, colon, number, boolean) => {
+          if (string) {
+            return `<span class="json-key">${string}</span>${colon || ''}`;
+          }
+          if (number) return `<span class="json-number">${number}</span>`;
+          if (boolean) return `<span class="json-boolean">${boolean}</span>`;
+          return match;
+        }
+      );
+    }
+
+    function renderCode(text) {
+      output.innerHTML = `<code>${syntaxHighlight(text)}</code>`;
+      const lines = text.split('\n').length;
+      document.getElementById('lineNumbers').innerHTML =
+        Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+    }
+
+    async function callApi(endpoint, name) {
+      responseHint.textContent = `Calling ${endpoint}...`;
+      renderCode('Loading...');
+
+      document.querySelectorAll('.api-button').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('loading');
+      });
+
+      const start = performance.now();
+
       try {
         const res = await fetch(endpoint);
-        const data = await res.json();
-        output.textContent = `HTTP ${res.status}\n${JSON.stringify(data, null, 2)}`;
+        const text = await res.text();
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        const formatted = typeof data === 'string'
+          ? data
+          : JSON.stringify(data, null, 2);
+
+        renderCode(`HTTP ${res.status}\n${formatted}`);
+        responseHint.textContent =
+          `${name} · ${res.status} ${res.ok ? 'OK' : 'Error'} · ${Math.round(performance.now() - start)} ms`;
       } catch (err) {
-        output.textContent = `Request failed: ${err.message}`;
+        renderCode(`Request failed\n${err.message}`);
+        responseHint.textContent = 'Could not connect to the backend.';
+      } finally {
+        document.querySelectorAll('.api-button').forEach(btn => {
+          btn.disabled = false;
+          btn.classList.remove('loading');
+        });
       }
     }
 
-    const checkHealth = () => callApi('/api/health');
-    const getMessage = () => callApi('/api/message');
-    const getSecret = () => callApi('/api/secret');
-
-    function toggleTheme() {
-      const isDark = document.getElementById('themeToggle').checked;
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    async function copyResponse() {
+      const text = output.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyButton.textContent = '✓ Copied';
+        setTimeout(() => copyButton.textContent = '⧉ Copy', 1500);
+      } catch {
+        copyButton.textContent = 'Copy failed';
+        setTimeout(() => copyButton.textContent = '⧉ Copy', 1500);
+      }
     }
 
-    (function initTheme() {
-      const saved = localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', saved);
-      window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('themeToggle').checked = saved === 'dark';
-      });
-    })();
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark');
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem(
+        'theme',
+        document.body.classList.contains('dark') ? 'dark' : 'light'
+      );
+    });
   </script>
 </body>
-
 </html>
