@@ -7,6 +7,8 @@ services:
       - app_secret
     networks:
       - app-net
+    deploy:
+      replicas: 3
 
   frontend:
     build: ./frontend

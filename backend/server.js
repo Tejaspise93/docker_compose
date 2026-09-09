@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
+const os = require('os');
 
 let requestCount = 0;
 
@@ -14,7 +15,9 @@ app.get('/api/message', (req, res) => {
   res.json({
     message: 'Hello from the backend',
     timestamp: new Date().toISOString(),
-    requestCount
+    requestCount,
+    // shows container id
+    servedBy: os.hostname(),
   });
 });
 
