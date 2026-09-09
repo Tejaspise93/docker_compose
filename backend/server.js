@@ -1,8 +1,8 @@
 const express = require('express');
 const fs = require('fs');
+const os = require('os');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const os = require('os');
 
 let requestCount = 0;
 
@@ -16,8 +16,7 @@ app.get('/api/message', (req, res) => {
     message: 'Hello from the backend',
     timestamp: new Date().toISOString(),
     requestCount,
-    // shows container id
-    servedBy: os.hostname(),
+    servedBy: os.hostname()
   });
 });
 
@@ -26,9 +25,12 @@ app.get('/api/secret', (req, res) => {
   const secretPath = '/run/secrets/app_secret';
   try {
     const secretValue = fs.readFileSync(secretPath, 'utf8').trim();
-    res.json({ secretPreview: secretValue });
+    const masked = secretValue.length > 4
+      ? secretValue.slice(0, 2) + '*'.repeat(secretValue.length - 4) + secretValue.slice(-2)
+      : '*'.repeat(secretValue.length);
+    res.json({ secretPreview: masked, length: secretValue.length });
   } catch (err) {
-    console.error('Secret read error:', err.message); // TEMP: reveals real cause
+    console.error('Secret read error:', err.message);
     res.status(500).json({ error: 'Secret not found or unreadable' });
   }
 });

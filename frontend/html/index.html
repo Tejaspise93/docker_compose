@@ -20,23 +20,21 @@
   </div>
 
   <script>
-    async function checkHealth() {
-      const res = await fetch('/api/health');
-      const data = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    async function callApi(endpoint) {
+      const output = document.getElementById('output');
+      output.textContent = 'Loading...';
+      try {
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        output.textContent = `HTTP ${res.status}\n${JSON.stringify(data, null, 2)}`;
+      } catch (err) {
+        output.textContent = `Request failed: ${err.message}`;
+      }
     }
 
-    async function getMessage() {
-      const res = await fetch('/api/message');
-      const data = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-    }
-
-    async function getSecret() {
-      const res = await fetch('/api/secret');
-      const data = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-    }
+    const checkHealth = () => callApi('/api/health');
+    const getMessage = () => callApi('/api/message');
+    const getSecret = () => callApi('/api/secret');
   </script>
 </body>
 
