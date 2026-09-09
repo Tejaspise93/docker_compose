@@ -9,7 +9,16 @@
 
 <body>
   <div class="container">
-    <h1>Docker Compose Learning Project</h1>
+    <div class="top-bar">
+      <h1>Docker Compose Learning Project</h1>
+      <label class="switch">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+        <span class="slider">
+          <span class="icon sun">☀️</span>
+          <span class="icon moon">🌙</span>
+        </span>
+      </label>
+    </div>
     <p>Static page served by nginx. Buttons below call the backend through nginx's reverse proxy.</p>
 
     <button onclick="checkHealth()">Check Health</button>
@@ -35,6 +44,21 @@
     const checkHealth = () => callApi('/api/health');
     const getMessage = () => callApi('/api/message');
     const getSecret = () => callApi('/api/secret');
+
+    function toggleTheme() {
+      const isDark = document.getElementById('themeToggle').checked;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    (function initTheme() {
+      const saved = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', saved);
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('themeToggle').checked = saved === 'dark';
+      });
+    })();
   </script>
 </body>
 

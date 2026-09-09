@@ -1,19 +1,53 @@
+:root {
+  --bg: #f4f6f8;
+  --card-bg: #fff;
+  --text: #222;
+  --pre-bg: #f0f0f0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --btn-bg: #2563eb;
+  --btn-hover: #1e4fc4;
+}
+
+[data-theme="dark"] {
+  --bg: #14161a;
+  --card-bg: #1e2126;
+  --text: #e6e6e6;
+  --pre-bg: #2a2d33;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --btn-bg: #3b82f6;
+  --btn-hover: #60a5fa;
+}
+
 body {
   font-family: system-ui, sans-serif;
-  background: #f4f6f8;
-  color: #222;
+  background: var(--bg);
+  color: var(--text);
   display: flex;
   justify-content: center;
   padding-top: 60px;
+  transition: background 0.6s ease, color 0.6s ease;
 }
 
 .container {
-  background: #fff;
+  background: var(--card-bg);
   padding: 30px 40px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow);
   max-width: 500px;
   width: 100%;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.top-bar h1 {
+  font-size: 1.4rem;
+  margin: 0;
 }
 
 button {
@@ -22,20 +56,95 @@ button {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
-  background: #2563eb;
+  background: var(--btn-bg);
   color: #fff;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background: #1e4fc4;
+  background: var(--btn-hover);
 }
 
 pre {
-  background: #f0f0f0;
+  background: var(--pre-bg);
   padding: 12px;
   border-radius: 4px;
   margin-top: 20px;
   white-space: pre-wrap;
   word-break: break-word;
+  transition: background 0.3s ease;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  border-radius: 28px;
+  transition: background-color 0.6s ease;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.6s ease, background-color 0.6s ease;
+  z-index: 2;
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  line-height: 1;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+.icon.sun {
+  left: 6px;
+  opacity: 1;
+}
+
+.icon.moon {
+  right: 6px;
+  opacity: 0.4;
+}
+
+input:checked+.slider {
+  background-color: #3b3f46;
+}
+
+input:checked+.slider::before {
+  transform: translateX(26px);
+}
+
+input:checked+.slider .icon.sun {
+  opacity: 0.4;
+}
+
+input:checked+.slider .icon.moon {
+  opacity: 1;
 }
