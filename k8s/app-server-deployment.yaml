@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-server
+  namespace: docker-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-server
+  template:
+    metadata:
+      labels:
+        app: app-server
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: app-server
+          image: tejaspise/docker-app-server:v1
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: app-secret-vol
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: app-secret-vol
+          secret:
+            secretName: app-secret
